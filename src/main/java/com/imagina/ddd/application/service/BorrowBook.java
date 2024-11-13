@@ -2,13 +2,13 @@ package com.imagina.ddd.application.service;
 
 import java.util.Optional;
 import java.util.function.Function;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.imagina.ddd.application.exception.BookNotFoundException;
 import com.imagina.ddd.application.exception.UserNotFoundException;
+import com.imagina.ddd.application.task.TaskScheduler;
+import com.imagina.ddd.application.task.TaskType;
+import com.imagina.ddd.application.task.data.VerifyBorrowingWasCompletedData;
 import com.imagina.ddd.domain.model.book.Book;
 import com.imagina.ddd.domain.model.book.BookId;
 import com.imagina.ddd.domain.model.book.BookRepository;
@@ -18,12 +18,10 @@ import com.imagina.ddd.domain.model.user.UserId;
 import com.imagina.ddd.domain.model.user.UserManager;
 
 public class BorrowBook extends ApplicationService {
-	
 	private final TaskScheduler taskScheduler;
 	private final BookRepository bookRepository;
 	private final UserManager userManager;
-	
-	@Autowired
+
 	protected BorrowBook(PlatformTransactionManager platformTransactionManager, TaskScheduler taskScheduler,
 			BookRepository bookRepository, UserManager userManager) {
 		super(platformTransactionManager);
@@ -38,7 +36,6 @@ public class BorrowBook extends ApplicationService {
 			throw new UserNotFoundException(userId);
 		}
 		User user = userOpt.get();
-		
 		return executeInTransactionAndReturn(() -> {
 			Optional<Book> bookOpt = bookRepository.findById(bookId);
 			if (bookOpt.isEmpty()) {
@@ -53,6 +50,4 @@ public class BorrowBook extends ApplicationService {
 			return mapper.apply(borrowing);
 		});
 	}
-	
-
 }
